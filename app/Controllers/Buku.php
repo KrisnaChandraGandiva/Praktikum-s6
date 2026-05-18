@@ -82,14 +82,52 @@ class Buku extends BaseController
     // ────────────────────────────────────── 
     public function simpan() 
     { 
-        $data = $this->ambilDataForm(); 
-  
-        // Validasi kode unik 
-        if ($this->bukuModel->isKodeTaken($data['kode_buku'])) { 
-            session()->setFlashdata('error', 'Kode buku sudah digunakan.'); 
-            return redirect()->back()->withInput(); 
+        $rules = [ 
+            'kode_buku' => [ 
+                'label'  => 'Kode Buku', 
+                'rules'  => 'required|min_length[3]|max_length[20]|alpha_numeric|is_unique[buku.kode_buku]', 
+                'errors' => [ 
+                    'required'      => '{field} wajib diisi.', 
+                    'alpha_numeric' => '{field} hanya boleh berisi huruf dan angka.', 
+                    'is_unique'     => 'Kode "{value}" sudah digunakan buku lain.', 
+                ], 
+            ], 
+            'judul' => [ 
+                'label' => 'Judul Buku', 
+                'rules' => 'required|min_length[2]|max_length[200]', 
+            ], 
+            'penulis' => [ 
+                'label' => 'Penulis', 
+                'rules' => 'required|min_length[2]|max_length[150]', 
+            ], 
+            'tahun' => [ 
+                'label' => 'Tahun Terbit', 
+                'rules' => 'permit_empty|integer|greater_than[1499]|less_than[2100]', 
+                'errors' => [ 
+                    'greater_than' => '{field} tidak boleh sebelum tahun 1500.', 
+                    'less_than'    => '{field} tidak boleh lebih dari tahun 2099.', 
+                ], 
+            ], 
+            'stok' => [ 
+                'label' => 'Stok', 
+                'rules' => 'required|integer|greater_than_equal_to[0]', 
+                'errors' => [ 
+                    'greater_than_equal_to' => '{field} tidak boleh bernilai negatif.', 
+                ], 
+            ], 
+            'isbn' => [ 
+                'label' => 'ISBN', 
+                'rules' => 'permit_empty|min_length[10]|max_length[20]', 
+            ], 
+        ]; 
+      
+        if (!$this->validate($rules)) { 
+            return redirect()->back() 
+                             ->withInput() 
+                             ->with('errors', $this->validator->getErrors()); 
         } 
-  
+      
+        $data = $this->ambilDataForm(); 
         $this->bukuModel->insert($data); 
         session()->setFlashdata('sukses', "Buku '{$data['judul']}' berhasil ditambahkan."); 
         return redirect()->to('/buku'); 
@@ -117,14 +155,29 @@ class Buku extends BaseController
     // ────────────────────────────────────── 
     public function update(int $id) 
     { 
-        $data = $this->ambilDataForm(); 
-  
-        // Validasi kode unik, kecuali buku yang sedang diedit Halaman 13 dari 23 
-        if ($this->bukuModel->isKodeTaken($data['kode_buku'], $id)) { 
-            session()->setFlashdata('error', 'Kode buku sudah digunakan buku lain.'); 
-            return redirect()->back()->withInput(); 
+        // is_unique dengan pengecualian: kode buku milik buku yang sedang diedit 
+        $rules = [ 
+            'kode_buku' => [ 
+                'label'  => 'Kode Buku', 
+                'rules'  => "required|min_length[3]|max_length[20]|is_unique[buku.kode_buku,id,{$id}]", 
+                'errors' => [ 
+                    'is_unique' => 'Kode "{value}" sudah digunakan buku lain.', 
+                ], 
+            ], 
+            'judul'   => 'required|min_length[2]|max_length[200]', 
+            'penulis' => 'required|min_length[2]|max_length[150]', 
+            'tahun'   => 'permit_empty|integer|greater_than[1499]|less_than[2100]', 
+            'stok'    => 'required|integer|greater_than_equal_to[0]', 
+            'isbn'    => 'permit_empty|min_length[10]|max_length[20]', 
+        ]; 
+      
+        if (!$this->validate($rules)) { 
+            return redirect()->back() 
+                             ->withInput() 
+                             ->with('errors', $this->validator->getErrors()); 
         } 
-  
+      
+        $data = $this->ambilDataForm(); 
         $this->bukuModel->update($id, $data); 
         session()->setFlashdata('sukses', "Buku '{$data['judul']}' berhasil diperbarui."); 
         return redirect()->to('/buku'); 
