@@ -36,6 +36,16 @@ class Auth extends BaseController
   
         $identifier = $this->request->getPost('identifier'); 
         $password   = $this->request->getPost('password'); 
+        
+        // Rate Limiting Check (gunakan md5 agar key aman dari karakter spesial)
+        $attemptKey = 'login_attempts_' . md5($identifier);
+        $attempts = session()->getTempdata($attemptKey) ?? 0;
+        
+        if ($attempts >= 5) {
+            session()->setFlashdata('error', 'Akun dikunci selama 10 menit akibat terlalu banyak percobaan login.');
+            return redirect()->to('/login')->withInput();
+        }
+
         $user = $this->userModel->cariUserAktif($identifier); 
   
         // Gunakan pesan generik agar attacker tidak tahu 
@@ -46,11 +56,24 @@ class Auth extends BaseController
             // Jika user tidak ada, tetap jalankan password_verify 
             // untuk mencegah timing attack yang mengukur waktu respons 
             if (!$user) password_verify($password, '$2y$12$dummy_hash_untuk_timing'); 
+            
+            // Tambahkan hitungan percobaan gagal
+            $attempts++;
+            session()->setTempdata($attemptKey, $attempts, 600); // 10 menit
+            
+            if ($attempts >= 5) {
+                $pesanError = 'Akun dikunci selama 10 menit akibat terlalu banyak percobaan login.';
+            } else {
+                $sisa = 5 - $attempts;
+                $pesanError = "Username/email atau password salah. Sisa percobaan: {$sisa} kali lagi.";
+            }
+
             session()->setFlashdata('error', $pesanError); 
-            return redirect()->to('/login'); 
+            return redirect()->to('/login')->withInput(); 
         } 
   
-        // Login berhasil — simpan data ke session 
+        // Login berhasil — reset percobaan dan simpan data ke session 
+        session()->removeTempdata($attemptKey);
         session()->set([ 
             'user_id'   => $user['id'], 
             'username'  => $user['username'], 
