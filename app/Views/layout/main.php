@@ -49,6 +49,13 @@
                     </a>
                 </li>
 
+                <!-- KATEGORI -->
+                <li class="nav-item">
+                    <a class="nav-link <?= str_contains($current, '/kategori') ? 'active' : '' ?>" href="<?= base_url('kategori') ?>">
+                        <i class="bi bi-tags"></i> Kategori
+                    </a>
+                </li>
+
                 <!-- TENTANG -->
                 <li class="nav-item">
                     <a class="nav-link <?= str_contains($current, '/tentang') ? 'active' : '' ?>" href="<?= base_url('tentang') ?>">

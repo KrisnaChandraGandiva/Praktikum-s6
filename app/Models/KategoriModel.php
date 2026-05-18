@@ -35,4 +35,36 @@ class KategoriModel extends Model
 
         return $result;
     }
+
+    /**
+     * Cek apakah nama kategori sudah ada
+     */
+    public function isNamaTaken(string $nama, int $excludeId = 0): bool
+    {
+        $qb = $this->where('nama', $nama);
+        if ($excludeId > 0) {
+            $qb->where('id !=', $excludeId);
+        }
+        return $qb->countAllResults() > 0;
+    }
+
+    /**
+     * Ambil kategori dengan jumlah buku dan paginasi
+     */
+    public function getKategoriWithBukuCountPaginate(int $perPage = 10, string $keyword = '')
+    {
+        $this->select('kategori.*, COUNT(buku.id) AS jumlah_buku')
+             ->join('buku', 'buku.kategori_id = kategori.id', 'left')
+             ->groupBy('kategori.id')
+             ->orderBy('kategori.nama', 'ASC');
+
+        if (!empty($keyword)) {
+            $this->groupStart()
+                 ->like('kategori.nama', $keyword)
+                 ->orLike('kategori.deskripsi', $keyword)
+                 ->groupEnd();
+        }
+
+        return $this->paginate($perPage);
+    }
 }

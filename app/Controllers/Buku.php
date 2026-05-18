@@ -1,4 +1,4 @@
-<?php 
+<?php
   
 namespace App\Controllers; 
   
@@ -50,7 +50,8 @@ class Buku extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Buku tidak ditemukan'); 
         } 
   
-        return view('buku/detail', ['title' => 'Detail Buku', 'buku' => $buku]);} 
+        return view('buku/detail', ['title' => 'Detail Buku', 'buku' => $buku]);
+    } 
   
     // ────────────────────────────────────── 
     // CREATE - Form tambah 
@@ -150,4 +151,4 @@ class Buku extends BaseController
             'kategori_id' => $this->request->getPost('kategori_id') ?: null, 
         ]; 
     } 
-} 
+}
