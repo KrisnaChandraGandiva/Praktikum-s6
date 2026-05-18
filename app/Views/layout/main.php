@@ -56,6 +56,15 @@
                     </a>
                 </li>
 
+                <!-- PENGGUNA (Khusus Admin) -->
+                <?php if (session()->get('role') === 'admin'): ?>
+                <li class="nav-item">
+                    <a class="nav-link <?= str_contains($current, '/admin/pengguna') ? 'active' : '' ?>" href="<?= base_url('admin/pengguna') ?>">
+                        <i class="bi bi-people"></i> Pengguna
+                    </a>
+                </li>
+                <?php endif; ?>
+
                 <!-- TENTANG -->
                 <li class="nav-item">
                     <a class="nav-link <?= str_contains($current, '/tentang') ? 'active' : '' ?>" href="<?= base_url('tentang') ?>">
