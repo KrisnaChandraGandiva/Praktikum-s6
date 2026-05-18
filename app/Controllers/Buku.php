@@ -35,6 +35,18 @@ class Buku extends BaseController
         ]; 
         return view('buku/index', $data); 
     } 
+
+    // ────────────────────────────────────── 
+    // READ - Statistik Buku 
+    // ────────────────────────────────────── 
+    public function statistik(): string 
+    { 
+        $data = [ 
+            'title'     => 'Statistik Buku', 
+            'statistik' => $this->bukuModel->getStatistik(), 
+        ]; 
+        return view('buku/statistik', $data); 
+    } 
   
     // ────────────────────────────────────── 
     // READ - Detail satu buku 
