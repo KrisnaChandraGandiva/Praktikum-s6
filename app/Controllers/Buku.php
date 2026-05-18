@@ -133,6 +133,43 @@ class Buku extends BaseController
         session()->setFlashdata('sukses', "Buku '{$buku['judul']}' berhasil dihapus."); 
         return redirect()->to('/buku'); 
     } 
+
+    // ────────────────────────────────────── 
+    // EXPORT - Ekspor ke CSV 
+    // ────────────────────────────────────── 
+    public function ekspor() 
+    { 
+        $buku = $this->bukuModel->getBukuDenganKategori(); 
+        $filename = 'buku-export-' . date('Y-m-d') . '.csv'; 
+  
+        $file = fopen('php://temp', 'w'); 
+        
+        // Header 
+        fputcsv($file, ['No', 'Kode', 'Judul', 'Penulis', 'Penerbit', 'Tahun', 'Stok', 'Kategori']); 
+  
+        // Data 
+        $no = 1; 
+        foreach ($buku as $row) { 
+            fputcsv($file, [ 
+                $no++, 
+                $row['kode_buku'], 
+                $row['judul'], 
+                $row['penulis'], 
+                $row['penerbit'], 
+                $row['tahun'], 
+                $row['stok'], 
+                $row['nama_kategori'] ?? '-' 
+            ]); 
+        } 
+  
+        rewind($file); 
+        $csv = stream_get_contents($file); 
+        fclose($file); 
+  
+        return $this->response->setContentType('text/csv') 
+                              ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"') 
+                              ->setBody($csv); 
+    } 
   
     // ────────────────────────────────────── 
     // PRIVATE HELPER - Kumpulkan data dari form 
