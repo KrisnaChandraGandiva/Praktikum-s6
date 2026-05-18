@@ -47,6 +47,10 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('buku/ekspor',        'Buku::ekspor'); 
     $routes->get('buku/statistik',     'Buku::statistik'); 
   
+    // Ganti Password 
+    $routes->get('akun/ganti-password', 'Akun::gantiPassword'); 
+    $routes->post('akun/proses-ganti-password', 'Akun::prosesGantiPassword'); 
+  
     // Buku - WRITE hanya admin dan petugas 
     $routes->group('buku', ['filter' => 'role'], function ($routes) { 
         $routes->get('tambah',          'Buku::tambah'); 

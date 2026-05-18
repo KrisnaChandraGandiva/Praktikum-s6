@@ -86,6 +86,9 @@
                         <i class="bi bi-person-circle"></i>
                         <?= esc(session()->get('nama')) ?>
                     </span>
+                    <a class="btn btn-outline-info btn-sm me-2" href="<?= base_url('akun/ganti-password') ?>" title="Ganti Password">
+                        <i class="bi bi-key"></i>
+                    </a>
                     <a class="btn btn-outline-light btn-sm" href="<?= base_url('logout') ?>">
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </a>
